@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>雷一鸣 · 履历物语</title>
+<style>
+  @font-face{
+    font-family:'Zpix';
+    src:url('https://cdn.jsdelivr.net/gh/SolidZORO/zpix-pixel-font@3.1.11/website/zpix.woff2') format('woff2');
+    font-display:swap;
+  }
+  :root{
+    --pink:#e85a9c; --purple:#ff9ec7; --blue:#26ddfc; --gold:#fede22;
+    --bar:#ef5297; --bar-border:#c63c6f; --heart-fill:#e70000;
+    --ink:#8b4558; --paper:#fff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Zpix',monospace;
+    font-smooth:never; -webkit-font-smoothing:none;
+    color:var(--ink); min-height:100vh; overflow-x:hidden; line-height:1.5;
+    background:
+      repeating-linear-gradient(0deg, rgba(255,255,255,0) 0 3px, rgba(0,0,0,.02) 3px 4px),
+      #fff5f5;
+    background-attachment:fixed;
+  }
+  /* CRT 扫描线 */
+  body::after{
+    content:""; position:fixed; inset:0; z-index:9999; pointer-events:none;
+    background:repeating-linear-gradient(0deg, rgba(0,0,0,.05) 0 2px, transparent 2px 4px);
+  }
+  #petals{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;image-rendering:pixelated;}
+
+  /* ===================== 首页 / 标题画面 ===================== */
+  .title-screen{
+    position:relative; z-index:1;
+    min-height:100vh; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; padding:118px 20px 50px;
+  }
+  .game-title{
+    text-align:center; font-size:clamp(1.6rem,5vw,3rem); color:#fff; letter-spacing:.06em;
+    text-shadow:
+      2px 0 0 #8b4558,-2px 0 0 #8b4558,0 2px 0 #8b4558,0 -2px 0 #8b4558,
+      2px 2px 0 #8b4558,-2px 2px 0 #8b4558,2px -2px 0 #8b4558,-2px -2px 0 #8b4558,
+      5px 5px 0 rgba(232,90,156,.45);
+    animation:pixfloat 1.6s steps(2) infinite;
+  }
+  @keyframes pixfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  .game-title .heart{color:var(--gold);
+    text-shadow:2px 0 0 #8b4558,-2px 0 0 #8b4558,0 2px 0 #8b4558,0 -2px 0 #8b4558,
+      2px 2px 0 #8b4558,-2px 2px 0 #8b4558;}
+  .subtitle{
+    margin-top:18px; font-size:clamp(.8rem,2vw,.95rem); color:var(--ink);
+    background:#fff; padding:10px 18px;
+    box-shadow:0 0 0 3px #fff,0 0 0 6px var(--pink),4px 4px 0 6px rgba(139,69,88,.35);
+  }
+
+  /* 四条路线卡（像素 UI 面板） */
+  .route-grid{
+    margin-top:46px; width:100%; max-width:1000px;
+    display:grid; gap:26px; grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  }
+  .route-card{
+    position:relative; cursor:pointer; text-align:center; color:var(--ink);
+    background:#fff;
+    box-shadow:0 0 0 4px #fff,0 0 0 8px var(--c),6px 6px 0 8px rgba(139,69,88,.3);
+    border-radius:0; padding:24px 16px 22px; overflow:visible;
+    transition:transform .12s steps(2), box-shadow .12s;
+  }
+  .route-card:hover{transform:translate(-4px,-4px);
+    box-shadow:0 0 0 4px #fff,0 0 0 8px var(--c),10px 10px 0 8px rgba(139,69,88,.4);}
+  .route-card::before{content:"";position:absolute;inset:6px;border:2px dashed rgba(139,69,88,.18);pointer-events:none;}
+  .avatar{
+    width:72px;height:72px;margin:0 auto 12px;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--c); color:#fff;
+    box-shadow:0 0 0 4px #fff,4px 4px 0 4px rgba(139,69,88,.35);
+    animation:bob 2.4s steps(2) infinite;
+  }
+  .avatar svg{width:40px;height:40px;fill:#fff;image-rendering:pixelated;}
+  .route-card h2{font-size:1.15rem;margin-top:4px;}
+  .route-card .en{font-size:.7rem;letter-spacing:.16em;opacity:.6;margin-top:4px;}
+  .route-card .enter{margin-top:12px;font-size:.78rem;color:var(--c);}
+  .bar{margin-top:10px;height:8px;background:rgba(139,69,88,.18);overflow:hidden;box-shadow:inset 0 0 0 2px rgba(139,69,88,.2);}
+  .bar > i{display:block;height:100%;width:0;background:var(--c);box-shadow:0 0 0 2px var(--c);transition:width .8s steps(8);}
+  .route-card:hover .bar > i{width:100%;}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+  .hint{margin-top:42px;font-size:.8rem;opacity:.75;animation:blink 1.4s steps(1) infinite;}
+  @keyframes blink{0%,100%{opacity:.4}50%{opacity:.9}}
+
+  /* ===================== 电脑对话框顶部标题栏 + 好感度 ===================== */
+  .title-bar{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    background:var(--bar); color:#fff;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 14px;
+    box-shadow:0 0 0 3px var(--bar),0 0 0 6px var(--bar-border),0 4px 0 4px rgba(198,60,111,.35);
+  }
+  .title-bar .win-title{display:flex;align-items:center;gap:10px;font-size:.95rem;letter-spacing:.04em;text-shadow:2px 0 0 var(--bar-border),-2px 0 0 var(--bar-border),0 2px 0 var(--bar-border),0 -2px 0 var(--bar-border),2px 2px 0 var(--bar-border);}
+  .title-bar .win-icon{width:22px;height:22px;fill:#fff;image-rendering:pixelated;}
+  .title-bar .affection{display:flex;align-items:center;gap:10px;}
+  .title-bar .affection label{font-size:.92rem;opacity:.95;letter-spacing:.04em;}
+  .title-bar .hearts{display:flex;gap:6px;}
+  .title-bar .heart{width:28px;height:auto;display:block;fill:var(--bar-border);image-rendering:pixelated;transition:fill .2s steps(2),transform .2s steps(2);}
+  .title-bar .heart.filled{fill:var(--heart-fill);transform:scale(1.2);}
+
+  /* ===================== 路线弹层（像素 RPG 对话框） ===================== */
+  .overlay{
+    position:fixed;inset:0;z-index:20;display:none;
+    align-items:center;justify-content:center;padding:24px;
+    background:rgba(139,69,88,.55);
+  }
+  .overlay.show{display:flex;animation:fade .2s steps(2);}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+
+  .panel{
+    width:min(860px,100%);max-height:88vh;overflow-y:auto;position:relative;
+    background:rgba(255,255,255,.96);
+    box-shadow:0 0 0 4px #fff,0 0 0 9px var(--c),0 14px 0 9px rgba(139,69,88,.3);
+    border-radius:0;padding:56px 30px 30px;
+    animation:pop .25s steps(3);
+  }
+  @keyframes pop{from{transform:scale(.9)}to{transform:scale(1)}}
+
+  .back{
+    position:absolute;top:14px;left:14px;cursor:pointer;border:none;
+    background:var(--ink);color:#fff;font-family:inherit;font-size:.8rem;padding:8px 14px;
+    box-shadow:3px 3px 0 rgba(139,69,88,.4);transition:.1s;
+  }
+  .back:hover{background:var(--c);box-shadow:3px 3px 0 rgba(139,69,88,.5);}
+
+  .route-head{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+  .route-head .ic{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;}
+  .route-head h2{font-size:1.5rem;}
+  .chapter{font-size:.7rem;letter-spacing:.16em;opacity:.6;margin-left:auto;}
+
+  .block{margin-top:16px;padding:14px 16px;background:rgba(255,255,255,.85);border:2px solid var(--c);}
+  .block h3{font-size:.98rem;margin-bottom:4px;}
+  .block .meta{font-size:.78rem;opacity:.7;margin-bottom:8px;}
+  .block .desc{font-size:.74rem;opacity:.55;margin-bottom:8px;font-style:italic;}
+  .block li strong{color:var(--ink);}
+  .block ul{margin:0;padding-left:20px;}
+  .block li{font-size:.86rem;line-height:1.8;margin-bottom:6px;}
+
+  .work{margin-top:14px;padding:14px 16px;background:rgba(255,255,255,.85);border:2px solid var(--c);}
+  .work h3{font-size:.98rem;}
+  .work .stack{font-size:.74rem;color:var(--c);margin:4px 0 8px;}
+  .work p{font-size:.84rem;line-height:1.7;}
+  .work a{font-size:.8rem;color:var(--ink);opacity:.8;}
+  .work-img{display:block;max-width:220px;height:auto;margin:0 auto 14px;image-rendering:pixelated;filter:drop-shadow(3px 3px 0 rgba(139,69,88,.2));}
+  .work-links{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:0 0 14px;}
+  .work-links a{display:inline-block;padding:7px 14px;font-size:.82rem;font-weight:bold;text-decoration:none;border:2px solid var(--ink);box-shadow:3px 3px 0 rgba(139,69,88,.3);transition:.1s;}
+  .work-links a:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 rgba(139,69,88,.42);}
+  .work-links a.home{background:#26ddfc;color:#06303a;}
+  .work-links a.prod{background:#e85a9c;color:#fff;}
+  .work ul{margin:8px 0 0;padding-left:18px;}
+  .work li{font-size:.82rem;line-height:1.75;margin-bottom:5px;}
+  .work li strong{color:var(--ink);}
+
+  /* 视觉小说对话框（像素乙女 深色底白字） */
+  .vn{
+    margin-top:16px;background:#8b4558;color:#fff;
+    border:3px solid #fff; outline:3px solid var(--c); outline-offset:-3px;
+    padding:18px 18px 20px;position:relative;min-height:80px;
+  }
+  .vn .name{
+    display:inline-block;background:var(--c);color:#fff;
+    font-size:.76rem;padding:4px 12px;margin-bottom:12px;
+    box-shadow:3px 3px 0 rgba(139,69,88,.3);
+  }
+  .vn p{font-size:.9rem;line-height:1.8;white-space:pre-wrap;margin:0;}
+  .vn .cursor{display:inline-block;width:8px;animation:blink .8s steps(1) infinite;}
+
+  /* ===================== 100% 攻略成就弹层 ===================== */
+  .achievement-overlay{
+    position:fixed;inset:0;z-index:200;display:none;
+    align-items:center;justify-content:center;padding:24px;
+    background:rgba(139,69,88,.65);
+  }
+  .achievement-overlay.show{display:flex;animation:fade .25s steps(2);}
+  .achievement-card{
+    width:min(420px,100%);text-align:center;position:relative;
+    background:#fff;
+    box-shadow:0 0 0 4px #fff,0 0 0 9px var(--bar),0 14px 0 9px rgba(198,60,111,.35);
+    padding:36px 28px 30px;
+    animation:pop .25s steps(3);
+  }
+  .achievement-card .kiss-img{height:160px;width:auto;image-rendering:pixelated;margin-bottom:14px;}
+  .achievement-card h2{font-size:1.25rem;color:var(--bar);margin-bottom:10px;}
+  .achievement-card p{font-size:.9rem;line-height:1.8;color:var(--ink);margin-bottom:20px;}
+  .achievement-card .close-btn{border:none;background:var(--ink);color:#fff;font-family:inherit;font-size:.8rem;padding:10px 22px;cursor:pointer;box-shadow:3px 3px 0 rgba(139,69,88,.4);transition:.1s;}
+  .achievement-card .close-btn:hover{background:var(--bar);box-shadow:3px 3px 0 rgba(139,69,88,.5);}
+  .confetti{position:fixed;pointer-events:none;z-index:250;font-size:18px;animation:confetti-fall 1.2s linear forwards;}
+  @keyframes confetti-fall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(120vh) rotate(720deg);opacity:0}}
+
+  footer{position:relative;z-index:1;text-align:center;padding:30px;font-size:.76rem;opacity:.6;}
+
+  /* ===================== 会眨眼的像素女孩（JS 控制状态机） ===================== */
+  .pixel-girl{
+    position:fixed; bottom:10px; z-index:10000;
+    cursor:pointer; pointer-events:auto;
+    image-rendering:pixelated;
+    filter:drop-shadow(2px 2px 0 rgba(139,69,88,.25));
+    transition:filter .15s;
+  }
+  .pixel-girl:hover{filter:drop-shadow(2px 2px 0 rgba(139,69,88,.25)) brightness(1.08);}
+  .pixel-girl img{
+    height:120px; width:auto; display:block; image-rendering:pixelated;
+    position:relative; z-index:2;
+  }
+  .pixel-girl.walking img{ animation:girlBob .45s steps(2) infinite; }
+  .girl-shadow{
+    position:absolute; bottom:2px; left:50%; transform:translateX(-50%) scale(1);
+    width:50px; height:8px; background:rgba(139,69,88,.18); border-radius:50%;
+    z-index:1; pointer-events:none;
+    transition:transform .15s;
+  }
+  .pixel-girl.walking .girl-shadow{ animation:girlShadow .45s steps(2) infinite; }
+  @keyframes girlBob{
+    0%,100%{ transform:translateY(0); }
+    50%{ transform:translateY(-6px); }
+  }
+  @keyframes girlShadow{
+    0%,100%{ transform:translateX(-50%) scale(1); opacity:.18; }
+    50%{ transform:translateX(-50%) scale(.78); opacity:.1; }
+  }
+
+  @media(max-width:600px){
+    .panel{padding:50px 18px 24px;}
+    .route-grid{margin-top:28px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- 电脑对话框顶部标题栏 -->
+<header class="title-bar">
+  <div class="win-title">
+    <svg class="win-icon" viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="2" y="2" width="4" height="4"/><rect x="10" y="2" width="4" height="4"/><rect x="2" y="10" width="4" height="4"/><rect x="10" y="10" width="4" height="4"/></svg>
+    <span>雷一鸣 ♥ 履历物语</span>
+  </div>
+  <div class="affection">
+    <label>好感度</label>
+    <div class="hearts" id="hearts"></div>
+  </div>
+</header>
+
+<canvas id="petals"></canvas>
+
+<!-- ============ 首页：标题 + 四路线可选 ============ -->
+<div class="title-screen">
+  <h1 class="game-title">雷一鸣 <span class="heart">♥</span> 履历物语</h1>
+  <p class="subtitle">～ 选择一条路线，看见真实的我 ～</p>
+
+  <div class="route-grid" id="routeGrid">
+    <div class="route-card" data-key="internship" style="--c:var(--pink)">
+      <div class="avatar"><svg viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="7" y="2" width="2" height="2"/><rect x="4" y="5" width="2" height="2"/><rect x="7" y="5" width="2" height="2"/><rect x="10" y="5" width="2" height="2"/><rect x="5" y="7" width="6" height="2"/><rect x="4" y="9" width="2" height="2"/><rect x="7" y="9" width="2" height="2"/><rect x="10" y="9" width="2" height="2"/><rect x="7" y="12" width="2" height="2"/></svg></div><h2>实习经历</h2><div class="en">INTERNSHIP</div>
+      <div class="enter">ENTER ▸</div><div class="bar"><i></i></div>
+    </div>
+    <div class="route-card" data-key="education" style="--c:var(--purple)">
+      <div class="avatar"><svg viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="5" y="3" width="6" height="2"/><rect x="7" y="2" width="2" height="3"/><rect x="1" y="6" width="14" height="3"/><rect x="3" y="9" width="2" height="5"/><rect x="11" y="9" width="2" height="5"/></svg></div><h2>教育背景</h2><div class="en">EDUCATION</div>
+      <div class="enter">ENTER ▸</div><div class="bar"><i></i></div>
+    </div>
+    <div class="route-card" data-key="work" style="--c:var(--blue)">
+      <div class="avatar"><svg viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="5" y="3" width="6" height="2"/><rect x="2" y="5" width="12" height="9"/><rect x="5" y="7" width="6" height="4"/></svg></div><h2>工作经历</h2><div class="en">EXPERIENCE</div>
+      <div class="enter">ENTER ▸</div><div class="bar"><i></i></div>
+    </div>
+    <div class="route-card" data-key="demo" style="--c:var(--gold)">
+      <div class="avatar"><svg viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="7" y="1" width="2" height="3"/><rect x="3" y="5" width="10" height="2"/><rect x="5" y="7" width="6" height="2"/><rect x="7" y="9" width="2" height="4"/><rect x="2" y="10" width="2" height="2"/><rect x="12" y="10" width="2" height="2"/></svg></div><h2>Demo 作品</h2><div class="en">PROJECTS</div>
+      <div class="enter">ENTER ▸</div><div class="bar"><i></i></div>
+    </div>
+  </div>
+
+  <p class="hint">▸ 点击角色卡，进入她的故事线</p>
+</div>
+
+<!-- ============ 路线弹层 ============ -->
+<div class="overlay" id="overlay">
+  <div class="panel" id="panel">
+    <button class="back" id="backBtn">← 返回选择</button>
+    <div class="route-head">
+      <span class="ic" id="rIcon"></span>
+      <h2 id="rTitle"></h2>
+      <span class="chapter" id="rChapter"></span>
+    </div>
+    <div class="vn">
+      <span class="name" id="vnName"></span>
+      <p id="vnText"></p>
+    </div>
+    <div id="rBody"></div>
+  </div>
+</div>
+
+<footer>© 雷一鸣 · 用 ❤ 与花瓣做成 · AI 产品经理作品集</footer>
+
+<!-- 100% 攻略成就弹层 -->
+<div class="achievement-overlay" id="achievementOverlay">
+  <div class="achievement-card" id="achievementCard">
+    <img class="kiss-img" id="kissImg" src="girl-kiss.png?v=2" alt="像素女孩飞吻" />
+    <h2>攻略完成！</h2>
+    <p>恭喜你，完成了 100% 攻略履历的成就！<br>你已经了解完整的雷一鸣啦～ ❤</p>
+    <button class="close-btn" id="achievementClose">收下她的飞吻 ❤</button>
+  </div>
+</div>
+
+<!-- 会眨眼/走路/眯眼笑的像素女孩 -->
+<div class="pixel-girl" id="pixelGirl">
+  <img id="girlImg" src="girl-stand.png?v=2" alt="像素女孩" />
+  <span class="girl-shadow"></span>
+</div>
+
+<script>
+/* ===================== 简历数据（路线内容） ===================== */
+const ROUTES = {
+  internship:{
+    title:'实习经历', en:'INTERNSHIP', icon:`<svg width="28" height="28" viewBox="0 0 16 16" shape-rendering="crispEdges" fill="#fff"><rect x="7" y="2" width="2" height="2"/><rect x="4" y="5" width="2" height="2"/><rect x="7" y="5" width="2" height="2"/><rect x="10" y="5" width="2" height="2"/><rect x="5" y="7" width="6" height="2"/><rect x="4" y="9" width="2" height="2"/><rect x="7" y="9" width="2" height="2"/><rect x="10" y="9" width="2" height="2"/><rect x="7" y="12" width="2" height="2"/></svg>`, color:'#e85a9c',
+    chapter:'ROUTE 01 · 实习', vnName:'实习路线',
+    vn:'「这是我踏入 AI 产品世界的第一步，请多指教♪」',
+    blocks:[
+      {role:'小米集团', meta:'AI 语音策略产品经理实习生 · 2026-07 ~ 至今', desc:'小爱同学 TTS 评测体系与全双工交互策略 ｜ Speech Evaluation & Full-Duplex Interaction', pts:[
+        'TTS 评测体系与自动化工具链：针对小爱同学语音合成质量，梳理自然度、可懂度、发音准确性、韵律和音色一致性等 MOS 评测口径，搭建分层抽样与 Bad Case 归因分类机制；基于 Codex 沉淀自定义 Skill，实现评测脚本、样本处理与标注报告自动化生成，大幅缩短新场景评测搭建周期。',
+        '解码与采样策略调优：协同算法团队调优 TTS 及语言模型解码策略，系统评估 top-p、temperature、repetition penalty、分字阈值及 Few-shot/ICL 策略对合成自然度、重复缺陷和语义稳定性的影响，沉淀可复用的策略调优规则。',
+        '全双工 EOS 判停与时延优化：主导 EOS 判停机制升级，将原固定 500ms 等待升级为「ASR partial 变动触发 + 动态递增轮询」机制，将首查延迟从 500ms 降至 100ms；设计轮次 ID 与文本版本隔离机制，彻底消除迟到响应导致的对话串扰。',
+        '打断接续策略与 LLM Judge：推动全双工 4.1 能力在 IoT 终端落地，设计「人机判定 × 请求类型 × 快慢系统 × 打断阶段」四维打断决策规则；构建全双工交互评测数据集并搭建 LLM Judge 自动化打分流，支撑打断与接续策略版本迭代。'
+      ]},
+      {role:'Momenta', meta:'产品经理实习生 · 2026-05 ~ 2026-06', desc:'Tviz 训练可观测与资源排障平台 ｜ GPU Observability + Agentic Troubleshooting', pts:[
+        '双视角诊断架构重构：面向算法研发与训练 SRE 用户，针对跨模块排障链路割裂痛点，重构「任务/资源」双视角信息架构；整合日志、性能、GPU、节点及 JFS/PFS 存储等 7 类诊断模块，打通从「异常任务→异常 IP→底层资源指标→排障建议」的下钻链路，将跨模块定位路径缩短约 50%。',
+        'GPU 细粒度可观测看板：设计 GPU 热力图与资源异常监控看板，覆盖 GPU 利用率、显存、温度、功耗、错误状态等 8 类核心指标，实现资源空转、显存碎片化与节点风险的快速识别。',
+        'TvizAgent 智能排障助手：设计「异常摘要→证据聚合→推荐问题→诊断建议」的 Agent 交互闭环，沉淀训练失败、GPU 异常、节点故障、存储 I/O 瓶颈 4 类高频排障模板，推动 Agent 推荐问题点击率提升约 30%。'
+      ]},
+      {role:'TRANSNOTE PTE.LTD.（新加坡）', meta:'AI 技术产品实习生 · 2026-01 ~ 2026-05', desc:'K12 AI 教育硬件与云端 Agent 平台 ｜ ASR + LLM + RAG + Multimodal Interaction', pts:[
+        '负责 K12 课堂记录与课后辅导产品从 0 到 1 的需求定义：围绕学生、家长和教师三方场景，设计「随身录音蛋＋桌面 AI 台灯＋家长微信小程序＋云端 AI Agent」产品闭环，形成「课堂带着录，回家帮你学，家长随时看」产品定位；梳理课堂信息遗漏、课后辅导困难和家长反馈缺失等核心痛点，输出 PRD、交互流程、非功能需求及 P0—P3 路线图，制定八周 MVP 交付。',
+        'AI 能力链路设计：规划 ASR → 内容结构化 → LLM 总结与问答 → RAG 检索增强 → 长期记忆 → 个性化学习建议的能力流程；结合学生档案、错题趋势和历史学习记录，生成面向学生、家长的差异化学习反馈。',
+        '模型效果与安全策略：设计年级适配、模型幻觉、内容安全、录音隐私、服务不可用等异常与降级策略；建立拍照搜题及学习建议生成的评测链路，使用自动化测试和 E2E 脚本验证核心流程稳定性。',
+        '云端架构与交付协同：协同研发完成设备注册、激活、家庭绑定、家庭数据隔离、OSS STS 直传、异步任务处理和 WebSocket 实时推送；参与容器化部署与 Kubernetes 环境下的服务运行、配置管理和版本发布协作，理解 AI 服务从设备端请求到云端推理、异步处理和结果回传的完整链路。',
+        '产品规划与落地：输出 PRD、交互流程、非功能需求和 P0-P3 路线图，制定八周 MVP 交付计划，推动录音设备、学生端、家长端和云端 Agent 的端到端联调与落地。'
+      ]}
+    ]
+  },
+  education:{
+    title:'教育背景', en:'EDUCATION', icon:`<svg width="28" height="28" viewBox="0 0 16 16" shape-rendering="crispEdges" fill="#fff"><rect x="5" y="3" width="6" height="2"/><rect x="7" y="2" width="2" height="3"/><rect x="1" y="6" width="14" height="3"/><rect x="3" y="9" width="2" height="5"/><rect x="11" y="9" width="2" height="5"/></svg>`, color:'#ff9ec7',
+    chapter:'ROUTE 02 · 教育', vnName:'教育路线',
+    vn:'「书里书外，我都想成为更好的人 (◍•ᴗ•◍)」',
+    blocks:[
+      {role:'南洋理工大学', meta:'应用人工智能 · 硕士 · 2025-11 ~ 至今', pts:[]},
+      {role:'西北大学', meta:'通信工程 · 学士 · 2019-09 ~ 2023-06', pts:[]},
+      {role:'个人优势', meta:'复合背景 · AI 产品力 · 工程理解', pts:[
+        '2 年金融核心系统研发交付经验，参与小爱同学 TTS 评测、Momenta AI 训练平台与 AI 教育硬件从 0 到 1 落地。',
+        '熟悉 TTS / LLM / RAG / Embedding / LLM Agent / Mem0 / MLOps / 多模态链路，能完成需求拆解、竞品研究、PRD 与交互设计、评测闭环。',
+        '熟悉 Java / Go / SQL 后端开发，能与算法团队协同调优采样策略、设计 few-shot / ICL 评测方案，判断 AI 能力边界与工程成本。'
+      ]},
+      {role:'技能特长', meta:'', pts:[
+        'AI 与模型产品：LLM、RAG、Embedding、LLM Agent、Prompt Engineering、LLM Judge、MOS / Bad Case 评测。',
+        'AI 基建与平台：训练可观测、GPU 指标、任务诊断、日志分析、MLOps。',
+        '云原生与工程：Docker、Kubernetes、Spring Cloud、OSS / STS / CDN、WebSocket、异步任务。',
+        '开发与数据：Java、Go、SQL、Python、E2E 测试、PRD、原型设计。'
+      ]},
+      {role:'荣誉与证书', meta:'', pts:[
+        '英语：IELTS 6.5 · CET-6 527 · CET-4 550。',
+        '2020 全国大学生数学建模竞赛国家二等奖；第十二届会展创意大赛远华杯一等奖。',
+        '第 15 届中国计算机设计大赛西北赛区二等奖；2021 全国大学生电子设计竞赛省级三等奖。',
+        '发表论文：基于深度学习的人声智能作曲系统（第一作者，CCF-C 期刊）。'
+      ]}
+    ]
+  },
+  work:{
+    title:'工作经历', en:'EXPERIENCE', icon:`<svg width="28" height="28" viewBox="0 0 16 16" shape-rendering="crispEdges" fill="#fff"><rect x="5" y="3" width="6" height="2"/><rect x="2" y="5" width="12" height="9"/><rect x="5" y="7" width="6" height="4"/></svg>`, color:'#26ddfc',
+    chapter:'ROUTE 03 · 工作', vnName:'工作路线',
+    vn:'「两年打磨，我把系统做稳，也把自己做扎实了。」',
+    blocks:[
+      {role:'交通银行软件开发中心（深圳）', meta:'系统开发分析师 · 海外业务部 · 2023-07 ~ 2025-06', pts:[
+        '海外核心业务系统架构升级与云端迁移（Spring Cloud + OceanBase + OSS）：负责香港个人网银转账及强积金(MPF)模块业务拆解、接口定义与交付。',
+        '推动系统由 JSP 单体向 Spring Cloud + Vue3 前后端分离架构升级，核心接口 TPS 由 300 提升至 1200+。',
+        '参与停机割接方案设计与 OceanBase 全量迁移验证，梳理切换步骤、异常处理与回滚机制，保障海外系统云端稳定运行。',
+        '建设海外附件存储体系（阿里云 OSS / STS / CDN），将 5MB 以上大文件下载成功率由 92% 提升至 99.7%。'
+      ]}
+    ]
+  },
+  demo:{
+    title:'Demo 作品', en:'PROJECTS', icon:`<svg width="28" height="28" viewBox="0 0 16 16" shape-rendering="crispEdges" fill="#fff"><rect x="7" y="1" width="2" height="3"/><rect x="3" y="5" width="10" height="2"/><rect x="5" y="7" width="6" height="2"/><rect x="7" y="9" width="2" height="4"/><rect x="2" y="10" width="2" height="2"/><rect x="12" y="10" width="2" height="2"/></svg>`, color:'#fede22',
+    chapter:'ROUTE 04 · 作品', vnName:'作品路线',
+    vn:'「这些都是我亲手搭起来的小世界，要看看吗？(✿◡‿◡)」',
+    works:[
+      {name:'K12 · AI 教育硬件与云端 Agent', stack:'ASR · LLM · RAG · 多模态交互',
+       desc:'课堂随身录 · 回家 AI 辅导 · 家长随时看',
+       link:'https://qibanxing.qixgen.com/',
+       homepage:'https://qixgen.com/',
+       img:'demo-egg-pixel.png?v=2',
+       pts:[
+         '产品定位与闭环：围绕学生、家长、教师三方场景，设计「随身录音蛋＋桌面 AI 台灯＋家长微信小程序＋云端 Agent」四位一体产品闭环，形成「课堂随身录，回家 AI 辅导，家长随时看」的产品定位。',
+         'AI 能力链路：规划 ASR → 内容结构化 → LLM 总结与问答 → RAG 检索增强 → 长期记忆 → 个性化学习建议的完整流程，结合学生档案、错题趋势与历史学习记录生成差异化反馈。',
+         '多模态硬件设计：圆润录音蛋支持离线录音与可爱表情屏；桌面 AI 台灯集成拍照搜题、多模态交互与护眼场景，让 AI 辅导自然融入书桌。',
+         '云端与交付协同：完成设备注册、激活、家庭绑定、数据隔离、OSS STS 直传、异步任务与 WebSocket 实时推送；基于 Kubernetes 容器化部署，八周 MVP 从 0 到 1 落地。'
+       ]}
+    ]
+  }
+};
+
+/* ===================== 弹层交互 ===================== */
+const overlay=document.getElementById('overlay');
+const panel=document.getElementById('panel');
+const rBody=document.getElementById('rBody');
+let typeTimer=null;
+
+function openRoute(key){
+  const r=ROUTES[key]; if(!r) return;
+  panel.style.setProperty('--c',r.color);
+  document.getElementById('rIcon').innerHTML=r.icon;
+  document.getElementById('rTitle').textContent=r.title;
+  document.getElementById('rChapter').textContent=r.chapter;
+  document.getElementById('vnName').textContent=r.vnName;
+
+  // 渲染正文
+  rBody.innerHTML='';
+  if(r.blocks){
+    r.blocks.forEach(b=>{
+      const d=document.createElement('div'); d.className='block';
+      let html=`<h3>${b.role}</h3>`;
+      if(b.meta) html+=`<div class="meta">${b.meta}</div>`;
+      if(b.desc) html+=`<div class="desc">${b.desc}</div>`;
+      if(b.pts&&b.pts.length){ html+='<ul>'+b.pts.map(p=>{
+        const i=p.indexOf('：');
+        return i>0?`<li><strong>${p.slice(0,i)}</strong>${p.slice(i)}</li>`:`<li>${p}</li>`;
+      }).join('')+'</ul>'; }
+      d.innerHTML=html; rBody.appendChild(d);
+    });
+  }
+  if(r.works){
+    r.works.forEach(w=>{
+      const d=document.createElement('div'); d.className='work';
+      const img=w.img?`<img src="${w.img}" alt="${w.name}" class="work-img" loading="lazy">`:'<div style="height:8px"></div>';
+      const links=(w.homepage||w.link)?`<div class="work-links">${w.homepage?`<a class="home" href="${w.homepage}" target="_blank">🏠 公司主页</a>`:''}${w.link?`<a class="prod" href="${w.link}" target="_blank">▶ 查看产品页面</a>`:''}</div>`:'';
+      let html=`<h3>${w.name}</h3>${img}${links}<div class="stack">${w.stack}</div><p>${w.desc}</p>`;
+      if(w.pts&&w.pts.length){ html+='<ul>'+w.pts.map(p=>{
+        const i=p.indexOf('：');
+        return i>0?`<li><strong>${p.slice(0,i)}</strong>${p.slice(i)}</li>`:`<li>${p}</li>`;
+      }).join('')+'</ul>'; }
+      d.innerHTML=html;
+      rBody.appendChild(d);
+    });
+  }
+
+  overlay.classList.add('show');
+  document.body.style.overflow='hidden';
+  typewriter(document.getElementById('vnText'), r.vn);
+}
+function closeRoute(){
+  overlay.classList.remove('show');
+  document.body.style.overflow='';
+  if(typeTimer) clearInterval(typeTimer);
+}
+function typewriter(el,text){
+  if(typeTimer) clearInterval(typeTimer);
+  el.textContent='';
+  let i=0;
+  const cur=document.createElement('span'); cur.className='cursor'; cur.textContent='▍';
+  el.appendChild(cur);
+  typeTimer=setInterval(()=>{
+    if(i<text.length){ cur.insertAdjacentText('beforebegin',text[i]); i++; }
+    else { clearInterval(typeTimer); setTimeout(()=>cur.remove(),600); }
+  },42);
+}
+
+document.getElementById('routeGrid').addEventListener('click',e=>{
+  const card=e.target.closest('.route-card'); if(card){ markVisited(card.dataset.key); openRoute(card.dataset.key); }
+});
+document.getElementById('backBtn').addEventListener('click',closeRoute);
+overlay.addEventListener('click',e=>{ if(e.target===overlay) closeRoute(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeRoute(); });
+
+/* ===================== 好感度系统 ===================== */
+const ROUTE_ORDER=['internship','education','work','demo'];
+const HEART_MAP=['..##.##..','.#######.','.#######.','..#####..','...###...','....#....'];
+function makePixelHeart(key){
+  let rects='';
+  HEART_MAP.forEach((row,y)=>{
+    row.split('').forEach((c,x)=>{ if(c==='#') rects+=`<rect x="${x}" y="${y}" width="1" height="1"/>`; });
+  });
+  return `<svg class="heart" viewBox="0 0 9 6" data-key="${key}" shape-rendering="crispEdges">${rects}</svg>`;
+}
+document.getElementById('hearts').innerHTML=ROUTE_ORDER.map(makePixelHeart).join('');
+
+let affection=[];
+let achievementShown=false;
+const heartEls=document.querySelectorAll('#hearts .heart');
+
+function updateHearts(){
+  heartEls.forEach((h,i)=>{
+    const filled=affection.includes(ROUTE_ORDER[i]);
+    h.classList.toggle('filled',filled);
+  });
+  if(affection.length===4 && !achievementShown){
+    achievementShown=true;
+    setTimeout(showAchievement,400);
+  }
+}
+function markVisited(key){
+  if(!affection.includes(key)){
+    affection.push(key);
+    updateHearts();
+  }
+}
+function showAchievement(){
+  const ao=document.getElementById('achievementOverlay');
+  ao.classList.add('show');
+  document.body.style.overflow='hidden';
+  spawnConfetti();
+}
+function closeAchievement(){
+  document.getElementById('achievementOverlay').classList.remove('show');
+  document.body.style.overflow='';
+}
+function spawnConfetti(){
+  const shapes=['♥','★','●','■'];
+  const colors=['#ff3b3b','#e85a9c','#26ddfc','#fede22','#ff9ec7'];
+  for(let i=0;i<60;i++){
+    const el=document.createElement('span');
+    el.className='confetti';
+    el.textContent=shapes[(Math.random()*shapes.length)|0];
+    el.style.left=(Math.random()*100)+'vw';
+    el.style.top='-30px';
+    el.style.color=colors[(Math.random()*colors.length)|0];
+    el.style.animationDuration=(0.8+Math.random()*0.8)+'s';
+    el.style.animationDelay=(Math.random()*0.3)+'s';
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),1800);
+  }
+}
+document.getElementById('achievementClose').addEventListener('click',closeAchievement);
+document.getElementById('achievementOverlay').addEventListener('click',e=>{ if(e.target===document.getElementById('achievementOverlay')) closeAchievement(); });
+updateHearts();
+
+/* 悬停飘心 */
+document.querySelectorAll('.route-card').forEach(card=>{
+  card.addEventListener('mouseenter',()=>spawnHearts(card));
+});
+function spawnHearts(card){
+  for(let i=0;i<5;i++){
+    const h=document.createElement('span');
+    h.textContent='♥';
+    h.style.cssText=`position:absolute;left:${20+Math.random()*60}%;top:${30+Math.random()*30}%;
+      color:${card.style.getPropertyValue('--c')||'#ff9ec7'};font-size:${12+Math.random()*12}px;
+      pointer-events:none;opacity:.9;z-index:5;transition:transform 1s ease,opacity 1s ease;`;
+    card.appendChild(h);
+    requestAnimationFrame(()=>{ h.style.transform='translateY(-60px) scale(1.4)'; h.style.opacity='0'; });
+    setTimeout(()=>h.remove(),1000);
+  }
+}
+
+/* ===================== 像素花瓣 + 偶尔像素爱心 ===================== */
+const canvas=document.getElementById('petals'), ctx=canvas.getContext('2d');
+let W,H,parts=[];
+function resize(){ W=canvas.width=innerWidth; H=canvas.height=innerHeight; }
+resize(); addEventListener('resize',resize);
+const PCOL=['#ffc6e0','#ffb3d9','#ffe0ef','#ffffff','#ff9ecb'];
+function mk(){
+  const heart=Math.random()<0.16;
+  return {
+    x:Math.random()*W, y:heart?Math.random()*H:-20,
+    heart, s:heart?(3+Math.random()*2):(6+Math.random()*6),
+    color:heart?'#ff6ec7':PCOL[(Math.random()*PCOL.length)|0],
+    speed:heart?(0.3+Math.random()*0.7):(0.8+Math.random()*1.6),
+    sway:1+Math.random()*2, ph:Math.random()*6.28, op:0.7+Math.random()*0.3
+  };
+}
+const N=Math.min(110,Math.floor(W/10));
+for(let i=0;i<N;i++) parts.push(mk());
+function drawP(p){
+  ctx.save(); ctx.globalAlpha=p.op;
+  if(p.heart){
+    const s=p.s, map=[[0,1,0,1,0],[1,1,1,1,1],[1,1,1,1,1],[0,1,1,1,0],[0,0,1,0,0]];
+    ctx.fillStyle=p.color;
+    for(let r=0;r<5;r++)for(let c=0;c<5;c++) if(map[r][c]) ctx.fillRect((p.x+c*s)|0,(p.y+r*s)|0,s,s);
+  } else {
+    ctx.fillStyle=p.color; ctx.fillRect(p.x|0,p.y|0,p.s,p.s);
+  }
+  ctx.restore();
+}
+function loop(){
+  ctx.clearRect(0,0,W,H);
+  for(const p of parts){
+    if(p.heart){ p.y-=p.speed; } else { p.y+=p.speed; }
+    p.ph+=0.02; p.x+=Math.sin(p.ph)*p.sway*0.4;
+    if(p.heart && p.y<-20) Object.assign(p,mk(),{heart:true,y:H+10});
+    if(!p.heart && p.y>H+p.s) Object.assign(p,mk(),{y:-p.s});
+    drawP(p);
+  }
+  requestAnimationFrame(loop);
+}
+loop();
+
+/* ===================== 像素女孩状态机 ===================== */
+(function(){
+  const girl=document.getElementById('pixelGirl');
+  const img=document.getElementById('girlImg');
+  if(!girl||!img) return;
+  let state='idle'; // idle | walk | smile
+  let dir=1;
+  let x=window.innerWidth*0.12;
+  let stateTimer=0;
+  let frameTimer=0;
+  let walkIdx=0;
+  let nextBlink=Date.now()+1500+Math.random()*2500;
+  const speed=0.7;
+  const walkFrames=['girl-walk1.png?v=2','girl-walk2.png?v=2','girl-walk3.png?v=2','girl-walk4.png?v=2'];
+  function setSrc(src){ if(img.getAttribute('src')!==src) img.src=src; }
+  function pickState(){
+    const now=Date.now();
+    state=Math.random()<0.55?'walk':'idle';
+    stateTimer=now+(state==='walk'?3000+Math.random()*4000:2000+Math.random()*2500);
+    if(state==='walk') dir=Math.random()<0.5?1:-1;
+  }
+  function update(){
+    const now=Date.now();
+    const W=window.innerWidth;
+    if(state==='smile' && now>stateTimer) pickState();
+    else if(state!=='smile' && now>stateTimer) pickState();
+    girl.classList.toggle('walking', state==='walk');
+    if(state==='walk'){
+      x+=speed*dir;
+      if(x<-10){ x=-10; dir=1; }
+      if(x>W-img.offsetWidth){ x=W-img.offsetWidth; dir=-1; }
+      if(now-frameTimer>190){ walkIdx=(walkIdx+1)%4; frameTimer=now; }
+      setSrc(walkFrames[walkIdx]);
+    }else if(state==='idle'){
+      if(now>nextBlink){
+        setSrc('girl-blink.png?v=2');
+        if(now>nextBlink+180){ setSrc('girl-stand.png?v=2'); nextBlink=now+2000+Math.random()*3000; }
+      }else{
+        setSrc('girl-stand.png?v=2');
+      }
+    }else if(state==='smile'){
+      setSrc('girl-smile.png?v=2');
+    }
+    girl.style.left=x+'px';
+    girl.style.transform='scaleX('+(dir===1?1:-1)+')';
+    requestAnimationFrame(update);
+  }
+  girl.addEventListener('click',()=>{ state='smile'; stateTimer=Date.now()+1800; });
+  pickState();
+  update();
+})();
+</script>
+
+</body>
+</html>
