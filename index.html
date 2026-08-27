@@ -321,22 +321,22 @@ const ROUTES = {
     vn:'「这是我踏入 AI 产品世界的第一步，请多指教♪」',
     blocks:[
       {role:'小米集团', meta:'AI 语音策略产品经理实习生 · 2026-07 ~ 至今', desc:'小爱同学 TTS 评测体系与全双工交互策略 ｜ Speech Evaluation & Full-Duplex Interaction', pts:[
-        'TTS 评测体系与自动化工具链：针对小爱同学语音合成质量，梳理自然度、可懂度、发音准确性、韵律和音色一致性等 MOS 评测口径，搭建分层抽样与 Bad Case 归因分类机制；基于 Codex 沉淀自定义 Skill，实现评测脚本、样本处理与标注报告自动化生成，大幅缩短新场景评测搭建周期。',
-        '解码与采样策略调优：协同算法团队调优 TTS 及语言模型解码策略，系统评估 top-p、temperature、repetition penalty、分字阈值及 Few-shot/ICL 策略对合成自然度、重复缺陷和语义稳定性的影响，沉淀可复用的策略调优规则。',
-        '全双工 EOS 判停与时延优化：主导 EOS 判停机制升级，将原固定 500ms 等待升级为「ASR partial 变动触发 + 动态递增轮询」机制，将首查延迟从 500ms 降至 100ms；设计轮次 ID 与文本版本隔离机制，彻底消除迟到响应导致的对话串扰。',
-        '打断接续策略与 LLM Judge：推动全双工 4.1 能力在 IoT 终端落地，设计「人机判定 × 请求类型 × 快慢系统 × 打断阶段」四维打断决策规则；构建全双工交互评测数据集并搭建 LLM Judge 自动化打分流，支撑打断与接续策略版本迭代。'
+        {h:'TTS 评测体系与自动化工具链'},
+        {h:'解码与采样策略调优'},
+        {h:'全双工 EOS 判停与时延优化'},
+        {h:'打断接续策略与 LLM Judge'}
       ]},
       {role:'Momenta', meta:'产品经理实习生 · 2026-05 ~ 2026-06', desc:'Tviz 训练可观测与资源排障平台 ｜ GPU Observability + Agentic Troubleshooting', pts:[
-        '双视角诊断架构重构：面向算法研发与训练 SRE 用户，针对跨模块排障链路割裂痛点，重构「任务/资源」双视角信息架构；整合日志、性能、GPU、节点及 JFS/PFS 存储等 7 类诊断模块，打通从「异常任务→异常 IP→底层资源指标→排障建议」的下钻链路，将跨模块定位路径缩短约 50%。',
-        'GPU 细粒度可观测看板：设计 GPU 热力图与资源异常监控看板，覆盖 GPU 利用率、显存、温度、功耗、错误状态等 8 类核心指标，实现资源空转、显存碎片化与节点风险的快速识别。',
-        'TvizAgent 智能排障助手：设计「异常摘要→证据聚合→推荐问题→诊断建议」的 Agent 交互闭环，沉淀训练失败、GPU 异常、节点故障、存储 I/O 瓶颈 4 类高频排障模板，推动 Agent 推荐问题点击率提升约 30%。'
+        '双视角诊断架构重构：面向算法研发与训练 SRE 用户，将跨模块定位路径缩短约 50%。',
+        'GPU 细粒度可观测看板：设计 GPU 热力图与资源异常监控看板',
+        'TvizAgent 智能排障助手：设计「异常摘要→证据聚合→推荐问题→诊断建议」的 Agent 交互闭环'
       ]},
       {role:'TRANSNOTE PTE.LTD.（新加坡）', meta:'AI 技术产品实习生 · 2026-01 ~ 2026-05', desc:'K12 AI 教育硬件与云端 Agent 平台 ｜ ASR + LLM + RAG + Multimodal Interaction', pts:[
-        '负责 K12 课堂记录与课后辅导产品从 0 到 1 的需求定义：围绕学生、家长和教师三方场景，设计「随身录音蛋＋桌面 AI 台灯＋家长微信小程序＋云端 AI Agent」产品闭环，形成「课堂带着录，回家帮你学，家长随时看」产品定位；梳理课堂信息遗漏、课后辅导困难和家长反馈缺失等核心痛点，输出 PRD、交互流程、非功能需求及 P0—P3 路线图，制定八周 MVP 交付。',
-        'AI 能力链路设计：规划 ASR → 内容结构化 → LLM 总结与问答 → RAG 检索增强 → 长期记忆 → 个性化学习建议的能力流程；结合学生档案、错题趋势和历史学习记录，生成面向学生、家长的差异化学习反馈。',
-        '模型效果与安全策略：设计年级适配、模型幻觉、内容安全、录音隐私、服务不可用等异常与降级策略；建立拍照搜题及学习建议生成的评测链路，使用自动化测试和 E2E 脚本验证核心流程稳定性。',
-        '云端架构与交付协同：协同研发完成设备注册、激活、家庭绑定、家庭数据隔离、OSS STS 直传、异步任务处理和 WebSocket 实时推送；参与容器化部署与 Kubernetes 环境下的服务运行、配置管理和版本发布协作，理解 AI 服务从设备端请求到云端推理、异步处理和结果回传的完整链路。',
-        '产品规划与落地：输出 PRD、交互流程、非功能需求和 P0-P3 路线图，制定八周 MVP 交付计划，推动录音设备、学生端、家长端和云端 Agent 的端到端联调与落地。'
+        {h:'负责 K12 课堂记录与课后辅导产品从 0 到 1 的需求定义'},
+        'AI 能力链路设计：规划 ASR → 内容结构化 → LLM 总结与问答 → RAG 检索增强 → 长期记忆 → 个性化学习建议的能力流程',
+        {h:'模型效果与安全策略'},
+        {h:'云端架构与交付协同'},
+        {h:'产品规划与落地'}
       ]}
     ]
   },
@@ -422,6 +422,7 @@ function openRoute(key){
       if(b.meta) html+=`<div class="meta">${b.meta}</div>`;
       if(b.desc) html+=`<div class="desc">${b.desc}</div>`;
       if(b.pts&&b.pts.length){ html+='<ul>'+b.pts.map(p=>{
+        if(typeof p==='object'&&p.h) return `<li><strong>${p.h}</strong></li>`;
         const i=p.indexOf('：');
         return i>0?`<li><strong>${p.slice(0,i)}</strong>${p.slice(i)}</li>`:`<li>${p}</li>`;
       }).join('')+'</ul>'; }
@@ -435,6 +436,7 @@ function openRoute(key){
       const links=(w.homepage||w.link)?`<div class="work-links">${w.homepage?`<a class="home" href="${w.homepage}" target="_blank">🏠 公司主页</a>`:''}${w.link?`<a class="prod" href="${w.link}" target="_blank">▶ 查看产品页面</a>`:''}</div>`:'';
       let html=`<h3>${w.name}</h3>${img}${links}<div class="stack">${w.stack}</div><p>${w.desc}</p>`;
       if(w.pts&&w.pts.length){ html+='<ul>'+w.pts.map(p=>{
+        if(typeof p==='object'&&p.h) return `<li><strong>${p.h}</strong></li>`;
         const i=p.indexOf('：');
         return i>0?`<li><strong>${p.slice(0,i)}</strong>${p.slice(i)}</li>`:`<li>${p}</li>`;
       }).join('')+'</ul>'; }
